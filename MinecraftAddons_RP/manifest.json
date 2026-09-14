@@ -1,0 +1,21 @@
+{
+  "format_version": 2,
+  "metadata": {
+    "authors": ["TryNot"],
+    "product_type": "addon"
+  },
+  "header": {
+    "name": "MinecraftAddons_RP",
+    "description": "MinecraftAddons_RP",
+    "uuid": "8a1bcadc-2131-432c-8308-d80528814c7e",
+    "version": [1, 0, 1],
+    "min_engine_version": [1, 21, 60]
+  },
+  "modules": [
+    {
+      "type": "resources",
+      "uuid": "9186db6a-8a1b-4571-93fa-e9d35d9e69cd",
+      "version": [1, 0, 1]
+    }
+  ]
+}

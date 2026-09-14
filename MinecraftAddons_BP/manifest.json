@@ -1,0 +1,45 @@
+{
+  "format_version": 2,
+  "metadata": {
+    "authors": ["TryNot"],
+    "product_type": "addon"
+  },
+  "header": {
+    "name": "MinecraftAddons_BP",
+    "description": "MinecraftAddons_BP",
+    "uuid": "60188963-1334-4978-a8ab-126e4f0b4bfc",
+    "version": [1, 0, 1],
+    "min_engine_version": [1, 21, 60],
+    "pack_scope": "world"
+  },
+  "modules": [
+    {
+      "type": "data",
+      "uuid": "ee30b442-5fff-4d16-845e-deb54baea530",
+      "version": [1, 0, 1]
+    },
+    {
+      "type": "script",
+      "language": "javascript",
+      "entry": "scripts/ChainMining.js",
+      "uuid": "8b15c82f-69e6-4f55-a23d-cd67371cc582",
+      "version": [1, 0, 1],
+      "description": "连锁采集：潜行挖掘时连锁破坏同类型相连方块（基于效率附魔）"
+    },
+    {
+      "type": "script",
+      "language": "javascript",
+      "uuid": "268470a0-23d7-474d-891c-a44ea7efad99",
+      "entry": "scripts/DeathCoordinates.js",
+      "version": [1, 0, 1],
+      "description": "死亡时记录坐标，重生后聊天栏显示上次死亡位置"
+    }
+  ],
+  "dependencies": [
+    {
+      "module_name": "@minecraft/server",
+      "version": "1.15.0"
+    }
+  ],
+  "capabilities": ["script_eval"]
+}
