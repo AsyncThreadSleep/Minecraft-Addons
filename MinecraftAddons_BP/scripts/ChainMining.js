@@ -1,7 +1,8 @@
-import { world, EquipmentSlot } from "@minecraft/server";
+import { world, system, EquipmentSlot } from "@minecraft/server";
 
 const MAX = { 1: 6, 2: 8, 3: 10, 4: 12, 5: 16 };
 const RADIUS = 12;
+const TTL = 10;
 const DIRS = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
 const BLOCKED = new Set([
   "minecraft:chest", "minecraft:trapped_chest", "minecraft:ender_chest", "minecraft:barrel",
@@ -33,8 +34,14 @@ const BLOCKED = new Set([
   "minecraft:sculk_sensor", "minecraft:calibrated_sculk_sensor"
 ]);
 
+const recentBroken = new Map();
+
 function key(x, y, z) {
   return x + "," + y + "," + z;
+}
+
+function blockKey(dimId, x, y, z) {
+  return dimId + "|" + key(x, y, z);
 }
 
 function enchantLevel(tool, id) {
@@ -57,17 +64,24 @@ world.afterEvents.playerBreakBlock.subscribe((event) => {
   try {
     const player = event.player;
     if (!player || !player.isSneaking) return;
+    const dim = event.dimension;
+    const ox = Math.floor(event.block.location.x);
+    const oy = Math.floor(event.block.location.y);
+    const oz = Math.floor(event.block.location.z);
+    const now = system.currentTick;
+    if (recentBroken.has(blockKey(dim.id, ox, oy, oz))) return;
+    if (recentBroken.size > 128) {
+      for (const [k, exp] of recentBroken) {
+        if (exp <= now) recentBroken.delete(k);
+      }
+    }
     const equippable = player.getComponent("minecraft:equippable");
     if (!equippable) return;
     const tool = equippable.getEquipment(EquipmentSlot.Mainhand);
     const lv = enchantLevel(tool, "minecraft:efficiency");
     if (!lv) return;
-    const maxExtra = MAX[Math.min(lv, 5)] - 1;
+    const maxExtra = MAX[Math.min(lv, 5)];
     const typeId = event.brokenBlockPermutation.type.id;
-    const dim = event.dimension;
-    const ox = event.block.location.x;
-    const oy = event.block.location.y;
-    const oz = event.block.location.z;
     const visited = new Set([key(ox, oy, oz)]);
     const queue = [[ox, oy, oz]];
     const targets = [];
@@ -95,9 +109,10 @@ world.afterEvents.playerBreakBlock.subscribe((event) => {
     let damage = hasDur ? dur.damage : 0;
     for (const b of targets) {
       if (hasDur && dur.maxDurability - damage <= 1) break;
-      const bx = b.location.x;
-      const by = b.location.y;
-      const bz = b.location.z;
+      const bx = Math.floor(b.location.x);
+      const by = Math.floor(b.location.y);
+      const bz = Math.floor(b.location.z);
+      recentBroken.set(blockKey(dim.id, bx, by, bz), now + TTL);
       try {
         dim.runCommand("setblock " + bx + " " + by + " " + bz + " air destroy");
       } catch (err) {

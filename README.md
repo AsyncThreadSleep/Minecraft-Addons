@@ -1,22 +1,25 @@
 # Minecraft-Addons
 
-A lightweight Minecraft **Bedrock** addon (Behavior Pack + Resource Pack) with two practical features:
+[English](README-en.md) | 中文
 
-- **Chain Mining** — mine connected blocks of the same type in one go while sneaking
-- **Death Coordinates** — see where you died in chat after respawning
+一个轻量的 Minecraft 基岩版 AddOn（行为包 + 资源包），包含三个功能：
 
-Requires Minecraft Bedrock **1.21.60+** (tested on 1.26.45, App Store version).
-Script API: `@minecraft/server` 1.15.0.
+- **连锁采集** — 潜行时一次性连锁挖掘同类型相连方块
+- **死亡坐标** — 重生后聊天栏显示上次死亡位置
+- **工具耐久 HUD** — 实时显示穿戴与手持物品的剩余耐久
+
+需要 Minecraft 基岩版 **1.26.30+**（已在 1.26.45 App Store 版测试）。
+脚本 API：`@minecraft/server` 2.8.0。
 
 ---
 
-## Features
+## 功能
 
-### Chain Mining (连锁采集)
+### 连锁采集
 
-Sneak (shift) while mining to break connected blocks of the same type all at once.
+潜行（下蹲）挖掘时，一次性连锁破坏同类型相连方块。
 
-| Efficiency level | Blocks chained |
+| 效率等级 | 连锁方块数 |
 | :---: | :---: |
 | I | 6 |
 | II | 8 |
@@ -24,37 +27,48 @@ Sneak (shift) while mining to break connected blocks of the same type all at onc
 | IV | 12 |
 | V | 16 |
 
-- **Trigger**: sneak + break a block with a tool enchanted with **Efficiency**
-- Blocks are searched by BFS over the 6 neighbor directions, within a Manhattan radius of 12
-- **Durability**: each extra block costs 1 durability point. The **Unbreaking** enchantment gives a `1/(level+1)` chance to skip the cost. Mining stops when the tool is down to its last durability point. Creative mode is unaffected.
-- **Safety blacklist**: containers and functional blocks (chests, furnaces, hoppers, crafting tables, spawners, redstone components, beds, doors, shulker boxes, ...) are never chained, so your chests and machines stay safe.
-- Uses `setblock air destroy` for natural block drops, breaking sounds and experience.
+- **触发**：潜行 + 使用带「效率」附魔的工具挖掘
+- 通过 BFS 沿 6 个方向搜索相连方块，曼哈顿半径 12 格
+- **耐久**：每连锁一个方块消耗 1 点耐久；「耐久」附魔有 `1/(等级+1)` 概率减免消耗；工具剩余最后 1 点耐久时停止连锁；创造模式不受影响
+- **安全黑名单**：容器与功能方块（箱子、熔炉、漏斗、工作台、刷怪笼、红石元件、床、门、潜影盒等）永远不会被连锁
+- 使用 `setblock air destroy` 实现自然掉落、破坏音效与经验掉落
 
-> **Why "Efficiency"?** Bedrock does not support registering custom enchantments (as of this writing). Chain Mining rides on the vanilla **Efficiency** enchantment, and the resource pack renames its display name to "Chain Mining" (`enchantment.digging`). Side effect: Efficiency shows as "Chain Mining" everywhere in the world.
+> **为什么用「效率」？** 基岩版目前不支持注册自定义附魔（截至本文写作）。连锁采集借原版「效率」附魔触发，资源包将其显示名改为"连锁采集"（`enchantment.digging`）。副作用：世界内所有「效率」都显示为"连锁采集"。
 
-### Death Coordinates (死亡坐标)
+### 死亡坐标
 
-- When you die, your death location and dimension are saved as player dynamic properties.
-- After respawning, the chat shows your last death position:
+- 死亡时，将死亡坐标与维度保存为玩家动态属性
+- 重生后聊天栏显示上次死亡位置：
 
   `[死亡坐标] 上次死亡位置【主世界】: 123 64 -456`
 
-- Dimensions are localized: 主世界 / 下界 / 末地.
+- 维度本地化：主世界 / 下界 / 末地
+
+### 工具耐久 HUD
+
+在动作栏实时显示所有穿戴物品的剩余耐久。
+
+- **6 个槽位**：头盔、胸甲、护腿、靴子、主手、副手
+- 显示格式：`钻石头盔 100/100`，按剩余比例变色：绿（>50%）、黄（>25%）、红（≤25%）
+- 内置 60+ 种常见物品的中文名称（全部工具、全部盔甲、弓、盾牌、鞘翅等）
+- **事件驱动**：挖掘、攻击、受伤、释放物品、交互方块、切换物品栏、进世界、重生时即时刷新，另有 2 秒兜底轮询（覆盖经验修补、鞘翅滑翔等无事件场景）；不逐秒轮询
+- 对世界内所有玩家生效
 
 ---
 
-## Project structure
+## 项目结构
 
 ```
 Minecraft-Addons/
-├── MinecraftAddons_BP/            # Behavior pack
+├── MinecraftAddons_BP/            # 行为包
 │   ├── manifest.json
 │   ├── pack_icon.png
 │   └── scripts/
-│       ├── main.js                # Single script entry - imports both modules
-│       ├── ChainMining.js         # Chain mining logic
-│       └── DeathCoordinates.js    # Death coordinates logic
-└── MinecraftAddons_RP/            # Resource pack
+│       ├── main.js                # 唯一脚本入口 - 导入三个功能文件
+│       ├── ChainMining.js         # 连锁采集逻辑
+│       ├── DeathCoordinates.js    # 死亡坐标逻辑
+│       └── ToolDurability.js      # 工具耐久 HUD
+└── MinecraftAddons_RP/            # 资源包
     ├── manifest.json
     ├── pack_icon.png
     └── texts/
@@ -66,49 +80,40 @@ Minecraft-Addons/
 
 ---
 
-## Installation
+## 安装
 
-1. Download the latest `.mcaddon` from [Releases](https://github.com/AsyncThreadSleep/Minecraft-Addons/releases), or build from source (below).
-2. Open the `.mcaddon` file **with Minecraft**: on mobile use Files -> tap the file -> share -> Minecraft; on Windows just double-click it.
-3. In the world settings, enable it under **Behavior Packs** and **Resource Packs**.
-4. Fully quit and re-enter the world.
+1. 从 [Releases](https://github.com/AsyncThreadSleep/Minecraft-Addons/releases) 下载最新的 `.mcaddon`，或按下方说明自行构建
+2. **用 Minecraft 打开** `.mcaddon` 文件：手机端在文件管理器中点击文件 → 共享 → 选择 Minecraft；Windows 直接双击
+3. 在世界设置中启用**行为包**与**资源包**
+4. 完全退出并重新进入世界
 
-> **Updating an old version?** First remove the old pack from the global resource list *and* from the world settings, then import the new one. If a pack keeps showing an old version, it is usually because the old copy is still embedded in the world save — remove it and re-add the new pack, or test in a fresh world.
+> **更新旧版本？** 先从全局资源列表和世界设置中移除旧包，再导入新包。如果一直显示旧版本，通常是旧副本仍嵌入在世界存档中——移除后重新添加新包，或在全新世界测试。
 
-## Building from source
+## 从源码构建
 
-1. Put the two folders (`MinecraftAddons_BP`, `MinecraftAddons_RP`) into a zip, with their `manifest.json` files at the zip root.
-2. Rename the zip extension to `.mcaddon`.
-3. Import as described above.
+1. 将两个文件夹（`MinecraftAddons_BP`、`MinecraftAddons_RP`）放入一个 zip，`manifest.json` 位于 zip 根
+2. 将 zip 扩展名改为 `.mcaddon`
+3. 按上文方式导入
 
-## Requirements
+## 环境要求
 
-- Minecraft Bedrock 1.21.60+
-- `@minecraft/server` 1.15.0
-- `script_eval` capability (already enabled in the manifest)
+- Minecraft 基岩版 1.26.30+
+- `@minecraft/server` 2.8.0
+- `script_eval` 能力（manifest 已开启）
 
-## Notes
+## 注意事项
 
-- **Keep exactly one script module.** The Bedrock engine only executes the *first* script module of a behavior pack. This addon therefore uses a single entry (`scripts/main.js`) that imports both feature files — keep it that way when adding features.
+- **只保留一个脚本模块。** 基岩版引擎只执行行为包的*第一个*脚本模块，因此本 AddOn 使用单一入口（`scripts/main.js`）导入全部功能文件——添加功能时请保持此结构。
 
-## Changelog
+## 更新日志
 
-| Version | Changes |
+| 版本 | 内容 |
 | --- | --- |
-| 1.0.3 | Single script entry (`main.js`) so both modules always load; removed debug output |
-| 1.0.2 | Fresh UUIDs to fix stale-version imports; completed the block blacklist; added zh_TW; removed `pack_scope` |
-| 1.0.1 | Merged Death Coordinates into the addon |
-
----
-
-## 中文说明
-
-一个轻量的 Minecraft 基岩版 AddOn（行为包 + 资源包），包含两个功能：
-
-**连锁采集**：潜行挖掘时，一次性连锁破坏同类型相连方块。基于原版「效率」附魔触发（基岩版不支持自定义附魔，资源包把效率的显示名改成了"连锁采集"）。效率 I–V 分别连锁 6 / 8 / 10 / 12 / 16 个方块；每连锁一个方块消耗 1 点耐久（附魔「耐久」可概率减免）；箱子、熔炉、工作台等容器与功能方块不会连锁。
-
-**死亡坐标**：死亡时自动记录坐标与维度，重生后在聊天栏显示上次死亡位置（主世界 / 下界 / 末地）。
-
-**安装**：导入 `.mcaddon`（用 Minecraft 打开），在世界设置中启用行为包与资源包。**更新**时先在世界设置和全局资源里移除旧包，再导入新包。
-
-**结构**：`scripts/main.js` 是唯一脚本入口（引擎只执行行为包的第一个 script 模块），通过它导入两个功能文件。连锁采集使用 `setblock air destroy` 实现自然掉落；容器与功能方块被列入黑名单不会连锁。
+| 1.0.8 | 连锁采集规则调整：自己挖的方块不计入上限，各等级连锁 6 / 8 / 10 / 12 / 16 个方块 |
+| 1.0.7 | 修复连锁采集"自己触发自己"：连锁挖掉的方块不再触发新的连锁，剩余方块留在原地等待再次挖掘 |
+| 1.0.6 | 脚本 API 升级至 `@minecraft/server` 2.8.0（min_engine_version 1.26.30+）；工具耐久 HUD 改为事件驱动（即时刷新 + 2 秒兜底） |
+| 1.0.5 | 工具耐久 HUD 显示物品名称，如 `钻石头盔 100/100` |
+| 1.0.4 | 新增工具耐久 HUD（穿戴与手持物品的耐久） |
+| 1.0.3 | 单一脚本入口（`main.js`），确保两个模块始终加载；移除调试输出 |
+| 1.0.2 | 全新 UUID 修复旧版本导入问题；补全方块黑名单；新增繁体中文；移除 `pack_scope` |
+| 1.0.1 | 合并死亡坐标功能 |

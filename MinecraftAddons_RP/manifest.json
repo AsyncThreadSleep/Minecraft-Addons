@@ -1,21 +1,35 @@
 {
   "format_version": 2,
   "metadata": {
-    "authors": ["TryNot"],
+    "authors": [
+      "TryNot"
+    ],
     "product_type": "addon"
   },
   "header": {
     "name": "MinecraftAddons_RP",
     "description": "MinecraftAddons_RP",
     "uuid": "3af01c5e-ee25-4eb8-b813-360bbf52fa29",
-    "version": [1, 0, 3],
-    "min_engine_version": [1, 21, 60]
+    "version": [
+      1,
+      0,
+      8
+    ],
+    "min_engine_version": [
+      1,
+      26,
+      30
+    ]
   },
   "modules": [
     {
       "type": "resources",
       "uuid": "7ae0adcd-359a-49b0-8eb9-9d623bf18647",
-      "version": [1, 0, 3]
+      "version": [
+        1,
+        0,
+        8
+      ]
     }
   ]
 }
