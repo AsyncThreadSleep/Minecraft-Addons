@@ -1,5 +1,4 @@
 import { world } from "@minecraft/server";
-
 const KEY_POS = "deathCoords_pos";
 const KEY_DIM = "deathCoords_dim";
 const KEY_PENDING = "deathCoords_pending";
